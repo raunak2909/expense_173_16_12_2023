@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wscube_expense_app/AppData/list_expense_icon.dart';
+import 'package:wscube_expense_app/AppConstant/image_path.dart';
 import 'package:wscube_expense_app/Constants/elevated_button.dart';
 import 'package:wscube_expense_app/Constants/text_field.dart';
 
@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           context: context,
                           builder: (context) {
                             return GridView.builder(
-                                itemCount: pngs.length,
+                                itemCount: imagePath.length,
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4),
@@ -111,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(12),
-                                      child: Image.asset(pngs[index]),
+                                      child: Image.asset(
+                                          imagePath[index].toString()),
                                     ),
                                   );
                                 });
