@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:wscube_expense_app/AppData/list_expense_icon.dart';
 import 'package:wscube_expense_app/Constants/elevated_button.dart';
 import 'package:wscube_expense_app/Constants/text_field.dart';
 
@@ -23,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (selectedDate != null && selectedDate != DateTime.now()) {
       setState(() {
-        elevatedBtnName = selectedDate.toLocal().toString().split(" ")[0];
+        elevatedBtnName = DateFormat.yMMMMd().format(selectedDate);
       });
     }
   }
@@ -58,26 +60,63 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButton(
-                    value: selectedItem,
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedItem = newValue.toString();
-                      });
-                    },
-                    items: <String>["Credit", "Item 2", "Item 3"]
-                        .map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
+                  Container(
+                    height: 35,
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: DropdownButton(
+                      dropdownColor: Colors.blue,
+                      focusColor: Colors.white,
+                      value: selectedItem,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedItem = newValue.toString();
+                        });
+                      },
+                      items: <String>["Credit", "Item 2", "Item 3"]
+                          .map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
+                  const SizedBox(height: 11),
                   CstmButton(
                     name: "Choose Expense",
                     btnColor: Colors.black,
                     textColor: Colors.white,
-                    onTap: () {},
+                    onTap: () {
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return GridView.builder(
+                                itemCount: pngs.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 4),
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    margin: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.cyan.shade100,
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Image.asset(pngs[index]),
+                                    ),
+                                  );
+                                });
+                          });
+                    },
                   ),
                   CstmButton(
                     name: elevatedBtnName,
