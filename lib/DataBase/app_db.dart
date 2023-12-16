@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wscube_expense_app/Model/expense_model.dart';
 import 'package:wscube_expense_app/Model/user_model.dart';
 
 class AppDataBase {
@@ -96,5 +97,28 @@ class AppDataBase {
         whereArgs: [email, pass]);
 
     return data.isNotEmpty;
+  }
+
+  ///expense
+
+  Future<bool> addExpense(ExpenseModel newExpense) async{
+    var db = await getDb();
+
+    int rowsEffected = await db.insert(EXPENSE_TABLE, newExpense.toMap());
+
+    return rowsEffected>0;
+  }
+
+  Future<List<ExpenseModel>> fetchAllExpense() async{
+    var db = await getDb();
+    var data = await db.query(EXPENSE_TABLE);
+
+    List<ExpenseModel> listExp = [];
+
+    for(Map<String,dynamic> eachExp in data){
+      listExp.add(ExpenseModel.fromMap(eachExp));
+    }
+
+    return listExp;
   }
 }

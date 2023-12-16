@@ -17,17 +17,17 @@ class AppConstants {
     ),
     CategoryModel(
       catId: 3,
-      catTitle: "gift-box",
+      catTitle: "Gift-Box",
       catImgPath: ImageConstants.IMG_PATH_GIFT_BOX,
     ),
     CategoryModel(
       catId: 4,
-      catTitle: "shirt",
+      catTitle: "Shirt",
       catImgPath: ImageConstants.IMG_PATH_SHIRT,
     ),
     CategoryModel(
       catId: 5,
-      catTitle: "hot-pot",
+      catTitle: "Hot-Pot",
       catImgPath: ImageConstants.IMG_PATH_HOT_POT,
     ),
     CategoryModel(

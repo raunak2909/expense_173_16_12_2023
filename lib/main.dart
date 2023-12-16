@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wscube_expense_app/Screens/add_expense_screen.dart';
 import 'package:wscube_expense_app/Screens/login_screen.dart';
 
 void main() {
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: AddExpenseScreen(),
     );
   }
 }

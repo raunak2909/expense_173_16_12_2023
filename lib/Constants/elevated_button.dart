@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
 class CstmButton extends StatelessWidget {
-  const CstmButton({
+  CstmButton({
     super.key,
     required this.name,
     required this.textColor,
     required this.btnColor,
     required this.onTap,
+    this.mWidget,
   });
 
   final String name;
   final Color btnColor;
   final Color textColor;
+  Widget? mWidget;
   final VoidCallback onTap;
 
   @override
@@ -23,7 +25,7 @@ class CstmButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: btnColor,
         ),
-        child: Text(
+        child: mWidget ?? Text(
           name,
           style: TextStyle(fontSize: 18, color: textColor),
         ),
