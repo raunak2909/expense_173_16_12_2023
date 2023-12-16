@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wscube_expense_app/Model/user_model.dart';
 
 class AppDataBase {
   AppDataBase._();
@@ -65,5 +66,35 @@ class AppDataBase {
     var prefs = await SharedPreferences.getInstance();
     var uid = prefs.getInt(LOGIN_UID);
     return uid ?? 0;
+  }
+
+  Future<bool> createAccount(UserModel newUser) async {
+    var check = await checkIfAlreadyExsits(newUser.user_email);
+
+    if (!check) {
+      var db = await getDb();
+      db.insert(USER_TABLE, newUser.toMap());
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> checkIfAlreadyExsits(String email) async {
+    var db = await getDb();
+    var data = await db
+        .query(USER_TABLE, where: "$COLUMN_USER_EMAIL = ?", whereArgs: [email]);
+
+    return data.isNotEmpty;
+  }
+
+  Future<bool> authenticateUser(String email, String pass) async {
+    var db = await getDb();
+
+    var data = await db.query(USER_TABLE,
+        where: "$COLUMN_USER_EMAIL = ? and $COLUMN_USER_PASS = ?",
+        whereArgs: [email, pass]);
+
+    return data.isNotEmpty;
   }
 }
