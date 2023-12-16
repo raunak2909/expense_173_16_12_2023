@@ -1,7 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../Constants/text_field_login.dart';
+import '../Constants/login_text_field.dart';
 import '../DataBase/app_db.dart';
 import '../Model/user_model.dart';
 import 'login_screen.dart';

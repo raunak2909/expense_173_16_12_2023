@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CstmTextField extends StatelessWidget {
   const CstmTextField({
     super.key,
     required this.label,
     required this.iconData,
+    this.keyboardType = TextInputType.text,
   });
 
   final String label;
   final IconData iconData;
+  final TextInputType keyboardType;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: TextFormField(
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.white,

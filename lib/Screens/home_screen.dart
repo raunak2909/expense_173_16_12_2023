@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wscube_expense_app/AppConstant/image_path.dart';
 import 'package:wscube_expense_app/Constants/elevated_button.dart';
 import 'package:wscube_expense_app/Constants/text_field.dart';
+import 'package:wscube_expense_app/Screens/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,6 +40,32 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Add Expense"),
         backgroundColor: Colors.blue,
       ),
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 21),
+              TextButton.icon(
+                onPressed: () async {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (ctx) => LoginScreen()));
+                  var prefs = await SharedPreferences.getInstance();
+                  prefs.setBool(LoginScreen.LOGIN_PREFS_KEY, false);
+                },
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.blue,
+                ),
+                label: const Text(
+                  "Log out",
+                  style: TextStyle(color: Colors.blue),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const CstmTextField(
               label: "Enter amount",
               iconData: Icons.money_sharp,
+              keyboardType: TextInputType.number,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 15, right: 15),
