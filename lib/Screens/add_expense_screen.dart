@@ -1,121 +1,164 @@
 import 'package:flutter/material.dart';
-import 'package:wscube_expense_app/AppConstant/content_constant.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:wscube_expense_app/Model/expense_model.dart';
+import 'package:wscube_expense_app/exp_bloc/expense_bloc.dart';
 
+import '../AppConstant/content_constant.dart';
 import '../Constants/elevated_button.dart';
-import '../Constants/text_field.dart';
+import '../app_widgets/expense_text_field.dart';
 
 class AddExpenseScreen extends StatefulWidget {
+  const AddExpenseScreen({super.key});
+
   @override
-  State<AddExpenseScreen> createState() => _AddExpenseScreenState();
+  State<AddExpenseScreen> createState() => _AddExpenseState();
 }
 
-class _AddExpenseScreenState extends State<AddExpenseScreen> {
-  var titleController = TextEditingController();
+class _AddExpenseState extends State<AddExpenseScreen> {
+  String selectedTransactionType = "Debit";
+  DateTime expenseDate = DateTime.now();
 
-  var descController = TextEditingController();
-
-  var amtController = TextEditingController();
-
-  var transactionType = ["Debit", "Credit"];
-
-  var selectedTransactionType = "Debit";
-
+  ///for default date
+  String elevatedBtnName = "Choose Date";
   var selectedCatIndex = -1;
+
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000, 2, 15),
+      lastDate: DateTime.now(),
+    );
+
+    if (selectedDate != null) {
+      setState(() {
+        expenseDate = selectedDate;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade400,
       appBar: AppBar(
-        title: Text('Add Expense'),
+        title: const Text("Add Expense"),
+        backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 21),
-            /*CstmTextField(
-              label: "Add Description",
+            ExpenseTextField(
+              label: "Name your expense",
+              controller: titleController,
               iconData: Icons.abc,
             ),
-            CstmTextField(
+            ExpenseTextField(
               label: "Add Description",
+              controller: descController,
               iconData: Icons.abc,
             ),
-            CstmTextField(
+            ExpenseTextField(
               label: "Enter amount",
+              controller: amountController,
               iconData: Icons.money_sharp,
               keyboardType: TextInputType.number,
-            ),*/
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 15, right: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                      height: 35,
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: DropdownButton(
-                        value: selectedTransactionType,
-                        items: transactionType
-                            .map((type) => DropdownMenuItem(
+                    height: 35,
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: DropdownButton(
+                      dropdownColor: Colors.blue,
+                      focusColor: Colors.white,
+                      value: selectedTransactionType,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedTransactionType = newValue!;
+                        });
+                      },
+                      items: ["Debit", "Credit"].map((type) {
+                        return DropdownMenuItem(
                           value: type,
-                            child: Text(type)))
-                            .toList(),
-                        onChanged: (value) {
-                          selectedTransactionType = value!;
-                          setState(() {
-
-                          });
-                        },
-                      )),
+                          child: Text(
+                            type,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                   const SizedBox(height: 11),
                   CstmButton(
                     name: "Choose Expense",
-                    mWidget: selectedCatIndex!=-1 ? Row(
+                    btnColor: Colors.white,
+                    textColor: Colors.black,
+                    mWidget: selectedCatIndex != -1
+                        ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(AppConstants.mCategories[selectedCatIndex].catImgPath, width: 25, height: 25,),
-                        Text(" - ${AppConstants.mCategories[selectedCatIndex].catTitle}", style: TextStyle(color: Colors.white),),
+                        Image.asset(
+                          AppConstants
+                              .mCategories[selectedCatIndex].catImgPath,
+                          width: 30,
+                          height: 30,
+                        ),
+                        Text(
+                          "  -  ${AppConstants.mCategories[selectedCatIndex]
+                              .catTitle}",
+                          style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500),
+                        )
                       ],
-                    ) : null,
-                    btnColor: Colors.black,
-                    textColor: Colors.white,
+                    )
+                        : null,
                     onTap: () {
                       showModalBottomSheet(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(15))
-                        ),
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(15))),
                           context: context,
                           builder: (context) {
                             return GridView.builder(
                                 itemCount: AppConstants.mCategories.length,
                                 gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 4),
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4),
                                 itemBuilder: (context, index) {
                                   var eachCat = AppConstants.mCategories[index];
                                   return InkWell(
-                                    onTap: (){
-                                      selectedCatIndex = index;
+                                    onTap: () {
                                       setState(() {
-
+                                        selectedCatIndex = index;
                                       });
                                       Navigator.pop(context);
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: Colors.cyan.withOpacity(0.2),
+                                        color: Colors.cyan.shade100,
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                       child: Padding(
-                                        padding: const EdgeInsets.all(14),
-                                        child: Image.asset(
-                                            eachCat.catImgPath),
+                                        padding: const EdgeInsets.all(12),
+                                        child: Image.asset(eachCat.catImgPath),
                                       ),
                                     ),
                                   );
@@ -123,19 +166,37 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                           });
                     },
                   ),
-                  /*CstmButton(
-                    name: elevatedBtnName,
+                  CstmButton(
+                    name: DateFormat.yMMMMd().format(expenseDate),
                     btnColor: Colors.white,
                     textColor: Colors.purple,
                     onTap: () {
                       _selectDate(context);
                     },
-                  ),*/
+                  ),
                   CstmButton(
-                    name: "Add Expense",
+                    name: "ADD Expense",
                     btnColor: Colors.black,
                     textColor: Colors.white,
-                    onTap: () {},
+                    onTap: () {
+
+                      print(amountController.text.toString());
+
+                      var newExpense = ExpenseModel(
+                          expId: 0,
+                          uId: 0,
+                          expTitle: titleController.text.toString(),
+                          expDesc: descController.text.toString(),
+                          expTimeStamp: expenseDate.millisecondsSinceEpoch.toString(),
+                          expAmt: int.parse(amountController.text.toString()),
+                          expBal: 0,
+                          expType: selectedTransactionType=="Debit" ? 0 : 1,
+                          expCatType: selectedCatIndex
+                      );
+
+                      BlocProvider.of<ExpenseBloc>(context).add(AddExpenseEvent(newExpense: newExpense));
+                      Navigator.pop(context);
+                    },
                   ),
                 ],
               ),

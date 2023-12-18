@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wscube_expense_app/DataBase/app_db.dart';
 import 'package:wscube_expense_app/Screens/add_expense_screen.dart';
+import 'package:wscube_expense_app/Screens/home_screen.dart';
 import 'package:wscube_expense_app/Screens/login_screen.dart';
+import 'package:wscube_expense_app/exp_bloc/expense_bloc.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(BlocProvider(
+    create: (context) => ExpenseBloc(db: AppDataBase.instance),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +26,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: AddExpenseScreen(),
+      home: HomeScreen(),
     );
   }
 }

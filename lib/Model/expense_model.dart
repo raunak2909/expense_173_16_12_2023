@@ -13,15 +13,15 @@ class ExpenseModel {
     required this.expCatType,
   });
 
-  String expId;
-  String uId;
+  int expId;
+  int uId;
   String expTitle;
   String expDesc;
   String expTimeStamp;
-  String expAmt;
-  String expBal;
-  String expType;
-  String expCatType;
+  num expAmt;
+  num expBal;
+  int expType;
+  int expCatType;
 
   factory ExpenseModel.fromMap(Map<String, dynamic> map) {
     return ExpenseModel(

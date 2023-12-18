@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wscube_expense_app/AppConstant/image_path.dart';
-import 'package:wscube_expense_app/Constants/elevated_button.dart';
-import 'package:wscube_expense_app/Constants/text_field.dart';
+import 'package:wscube_expense_app/Screens/add_expense_screen.dart';
 import 'package:wscube_expense_app/Screens/login_screen.dart';
+import 'package:wscube_expense_app/exp_bloc/expense_bloc.dart';
+
+import '../Model/expense_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,23 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String selectedItem = "Credit";
-  String elevatedBtnName = "Choose Date";
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000, 2, 15),
-      lastDate: DateTime.now(),
-    );
-
-    if (selectedDate != null && selectedDate != DateTime.now()) {
-      setState(() {
-        elevatedBtnName = DateFormat.yMMMMd().format(selectedDate);
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +51,43 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      body: Container(),
+      body: BlocBuilder<ExpenseBloc, ExpenseState>(
+        builder: (_, state){
+          if(state is ExpenseLoadingState){
+            return Center(child: CircularProgressIndicator(),);
+          }
+
+          if(state is ExpenseErrorState){
+            return Center(child: Text(state.errorMsg),);
+          }
+
+          if(state is ExpenseLoadedState){
+            state.mData.forEach((element) {
+              print(element.toMap().toString());
+            });
+            filterDayWiseExpenses(state.mData);
+            return ListView.builder(itemBuilder: (_, index){
+              return Container();
+            });
+          }
+
+          return Container();
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddExpenseScreen(),
+              ));
+        },
+      ),
     );
+  }
+
+  void filterDayWiseExpenses(List<ExpenseModel> allExpenses){
+
   }
 }
