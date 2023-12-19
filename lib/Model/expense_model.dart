@@ -1,5 +1,16 @@
 import '../DataBase/app_db.dart';
 
+class DateWiseExpenseModel {
+  String date;
+  String totalAmt;
+  List<ExpenseModel> allTransactions;
+
+  DateWiseExpenseModel({
+      required this.date,
+      required this.totalAmt,
+      required this.allTransactions});
+}
+
 class ExpenseModel {
   ExpenseModel({
     required this.expId,
