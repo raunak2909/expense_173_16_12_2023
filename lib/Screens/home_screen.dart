@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wscube_expense_app/Screens/add_expense_screen.dart';
 import 'package:wscube_expense_app/Screens/login_screen.dart';
+import 'package:wscube_expense_app/date_utils.dart';
 import 'package:wscube_expense_app/exp_bloc/expense_bloc.dart';
 
 import '../AppConstant/content_constant.dart';
@@ -17,11 +18,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
-  var dateFormat = DateFormat.yMd();
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<ExpenseBloc>(context).add(FetchAllExpenseEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
+    var mq = MediaQuery.of(context);
+    var mWidth = mq.size.width;
+    var mHeight = mq.size.height;
+    print("Width : $mWidth, Height: $mHeight");
+
     return Scaffold(
       backgroundColor: Colors.grey.shade400,
       appBar: AppBar(
@@ -55,58 +64,25 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: BlocBuilder<ExpenseBloc, ExpenseState>(
-        builder: (_, state){
-          if(state is ExpenseLoadingState){
-            return Center(child: CircularProgressIndicator(),);
+        builder: (_, state) {
+          if (state is ExpenseLoadingState) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
 
-          if(state is ExpenseErrorState){
-            return Center(child: Text(state.errorMsg),);
+          if (state is ExpenseErrorState) {
+            return Center(
+              child: Text(state.errorMsg),
+            );
           }
 
-          if(state is ExpenseLoadedState){
+          if (state is ExpenseLoadedState) {
             var dateWiseExpenses = filterDayWiseExpenses(state.mData);
 
-            return ListView.builder(
-              itemCount: dateWiseExpenses.length,
-                itemBuilder: (_, parentIndex){
-                var eachItem = dateWiseExpenses[parentIndex];
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${eachItem.date}'),
-                        Text('${eachItem.totalAmt}')
-                      ],
-                    ),
-                    Divider(
-                      color: Colors.black,
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: eachItem.allTransactions.length,
-                        itemBuilder: (_, childIndex){
-                        var eachTrans = eachItem.allTransactions[childIndex];
-                          return ListTile(
-                            leading: Image.asset(AppConstants.mCategories[eachTrans.expCatType].catImgPath),
-                            title: Text(eachTrans.expTitle),
-                            subtitle: Text(eachTrans.expDesc),
-                            trailing: Column(
-                              children: [
-                                Text(eachTrans.expAmt.toString()),
-                                ///balance will be added here
-                              ],
-                            ),
-                          );
-                        })
-                  ],
-                ),
-              );
-            });
+            return mq.orientation==Orientation.landscape
+                ? landscapeLay(dateWiseExpenses)
+                : portraitLay(dateWiseExpenses);
           }
 
           return Container();
@@ -125,54 +101,207 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  List<DateWiseExpenseModel> filterDayWiseExpenses(List<ExpenseModel> allExpenses){
+  Widget portraitLay(List<DateWiseExpenseModel> dateWiseExpenses) {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Your Balance till now:'),
+                  Text(
+                    '0.0',
+                    style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: ListView.builder(
+              itemCount: dateWiseExpenses.length,
+              itemBuilder: (_, parentIndex) {
+                var eachItem = dateWiseExpenses[parentIndex];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('${eachItem.date}'),
+                          Text('${eachItem.totalAmt}')
+                        ],
+                      ),
+                      Divider(
+                        color: Colors.black,
+                      ),
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: eachItem.allTransactions.length,
+                          itemBuilder: (_, childIndex) {
+                            var eachTrans =
+                                eachItem.allTransactions[childIndex];
+                            return ListTile(
+                              leading: Image.asset(AppConstants
+                                  .mCategories[eachTrans.expCatType]
+                                  .catImgPath),
+                              title: Text(eachTrans.expTitle),
+                              subtitle: Text(eachTrans.expDesc),
+                              trailing: Column(
+                                children: [
+                                  Text(eachTrans.expAmt.toString()),
+
+                                  ///balance will be added here
+                                ],
+                              ),
+                            );
+                          })
+                    ],
+                  ),
+                );
+              }),
+        ),
+      ],
+    );
+  }
+
+  Widget landscapeLay(List<DateWiseExpenseModel> dateWiseExpenses) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: Container(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Your Balance till now:'),
+                  Text(
+                    '0.0',
+                    style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: ListView.builder(
+              itemCount: dateWiseExpenses.length,
+              itemBuilder: (_, parentIndex) {
+                var eachItem = dateWiseExpenses[parentIndex];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('${eachItem.date}'),
+                          Text('${eachItem.totalAmt}')
+                        ],
+                      ),
+                      Divider(
+                        color: Colors.black,
+                      ),
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: eachItem.allTransactions.length,
+                          itemBuilder: (_, childIndex) {
+                            var eachTrans =
+                                eachItem.allTransactions[childIndex];
+                            return ListTile(
+                              leading: Image.asset(AppConstants
+                                  .mCategories[eachTrans.expCatType]
+                                  .catImgPath),
+                              title: Text(eachTrans.expTitle),
+                              subtitle: Text(eachTrans.expDesc),
+                              trailing: Column(
+                                children: [
+                                  Text(eachTrans.expAmt.toString()),
+
+                                  ///balance will be added here
+                                ],
+                              ),
+                            );
+                          })
+                    ],
+                  ),
+                );
+              }),
+        ),
+      ],
+    );
+  }
+
+  List<DateWiseExpenseModel> filterDayWiseExpenses(
+      List<ExpenseModel> allExpenses) {
     //dateWiseExpenses.clear();
     List<DateWiseExpenseModel> dateWiseExpenses = [];
 
     var listUniqueDates = [];
 
-    for(ExpenseModel eachExp in allExpenses){
-      var eachDate = DateTime.fromMillisecondsSinceEpoch(int.parse(eachExp.expTimeStamp));
-      var mDate = dateFormat.format(eachDate);
+    for (ExpenseModel eachExp in allExpenses) {
+      var mDate = DateTimeUtils.getFormattedDateFromMilli(
+          int.parse(eachExp.expTimeStamp));
 
-      if(!listUniqueDates.contains(mDate)){
+      if (!listUniqueDates.contains(mDate)) {
         ///not contains
         listUniqueDates.add(mDate);
       }
-
     }
 
     print(listUniqueDates);
 
-    for(String date in listUniqueDates){
-
+    for (String date in listUniqueDates) {
       List<ExpenseModel> eachDateExp = [];
       var totalAmt = 0.0;
 
-      for(ExpenseModel eachExp in allExpenses){
-        var eachDate = DateTime.fromMillisecondsSinceEpoch(int.parse(eachExp.expTimeStamp));
-        var mDate = dateFormat.format(eachDate);
+      for (ExpenseModel eachExp in allExpenses) {
+        var mDate = DateTimeUtils.getFormattedDateFromMilli(
+            int.parse(eachExp.expTimeStamp));
 
-        if(date==mDate){
+        if (date == mDate) {
           eachDateExp.add(eachExp);
 
-          if(eachExp.expType==0){
+          if (eachExp.expType == 0) {
             ///debit
             totalAmt -= eachExp.expAmt;
           } else {
             ///credit
             totalAmt += eachExp.expAmt;
           }
-
         }
+      }
 
+      ///for today
+      var formattedTodayDate =
+          DateTimeUtils.getFormattedDateFromDateTime(DateTime.now());
+
+      if (formattedTodayDate == date) {
+        date = "Today";
+      }
+
+      ///for Yesterday
+      var formattedYesterdayDate = DateTimeUtils.getFormattedDateFromDateTime(
+          DateTime.now().subtract(Duration(days: 1)));
+
+      if (formattedYesterdayDate == date) {
+        date = "Yesterday";
       }
 
       dateWiseExpenses.add(DateWiseExpenseModel(
           date: date,
           totalAmt: totalAmt.toString(),
           allTransactions: eachDateExp));
-
     }
 
     return dateWiseExpenses;
