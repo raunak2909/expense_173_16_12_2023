@@ -9,7 +9,8 @@ import '../Constants/elevated_button.dart';
 import '../app_widgets/expense_text_field.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
+  num balance;
+  AddExpenseScreen({required this.balance});
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseState();
@@ -182,6 +183,14 @@ class _AddExpenseState extends State<AddExpenseScreen> {
 
                       print(amountController.text.toString());
 
+                      var mBalance = widget.balance;
+
+                      if(selectedTransactionType=="Debit"){
+                        mBalance -= int.parse(amountController.text.toString());
+                      } else {
+                        mBalance += int.parse(amountController.text.toString());
+                      }
+
                       var newExpense = ExpenseModel(
                           expId: 0,
                           uId: 0,
@@ -189,7 +198,7 @@ class _AddExpenseState extends State<AddExpenseScreen> {
                           expDesc: descController.text.toString(),
                           expTimeStamp: expenseDate.millisecondsSinceEpoch.toString(),
                           expAmt: int.parse(amountController.text.toString()),
-                          expBal: 0,
+                          expBal: mBalance,
                           expType: selectedTransactionType=="Debit" ? 0 : 1,
                           expCatType: selectedCatIndex
                       );
