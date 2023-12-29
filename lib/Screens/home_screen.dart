@@ -65,12 +65,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SwitchListTile(
-                title: Text("Dark Mode"),
+                  title: Text("Dark Mode"),
                   subtitle: Text("Control theme of App from here"),
-                  value: context.watch<ThemeProvider>().themeValue, onChanged: (value){
-                context.read<ThemeProvider>().themeValue = value;
-                Navigator.pop(context);
-              })
+                  value: context.watch<ThemeProvider>().themeValue,
+                  onChanged: (value) {
+                    context.read<ThemeProvider>().themeValue = value;
+                    Navigator.pop(context);
+                  })
             ],
           ),
         ),
@@ -101,7 +102,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   : portraitLay(dateWiseExpenses, isDark);
             } else {
               return Center(
-                child: Text("No Expense yet!!\n Start adding today.", style: mTextStyle25(),),
+                child: Text(
+                  "No Expense yet!!\n Start adding today.",
+                  style: mTextStyle25(),
+                ),
               );
             }
           }
@@ -110,11 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100)
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         backgroundColor: isDark ? Colors.white : Colors.black,
-        child: Icon(Icons.add, color: isDark ? Colors.black : Colors.white,),
+        child: Icon(
+          Icons.add,
+          color: isDark ? Colors.black : Colors.white,
+        ),
         onPressed: () {
           Navigator.push(
               context,
@@ -126,15 +131,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void updateBalance(List<ExpenseModel> mData){
+  void updateBalance(List<ExpenseModel> mData) {
     var lastTransactionId = -1;
-    for(ExpenseModel exp in mData){
-      if(exp.expId>lastTransactionId){
+    for (ExpenseModel exp in mData) {
+      if (exp.expId > lastTransactionId) {
         lastTransactionId = exp.expId;
       }
     }
     print(lastTransactionId);
-    var lastExpenseBal = mData.firstWhere((element) => element.expId==lastTransactionId).expBal;
+    var lastExpenseBal = mData
+        .firstWhere((element) => element.expId == lastTransactionId)
+        .expBal;
     lastBalance = lastExpenseBal;
   }
 
@@ -148,9 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget portraitLay(List<DateWiseExpenseModel> dateWiseExpenses, bool isDark) {
     return Column(
       children: [
-        Expanded(
-          child: balanceHeader()
-        ),
+        Expanded(child: balanceHeader()),
         Expanded(
           flex: 2,
           child: mainLay(dateWiseExpenses, isDark),
@@ -159,7 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget landscapeLay(List<DateWiseExpenseModel> dateWiseExpenses, bool isDark) {
+  Widget landscapeLay(
+      List<DateWiseExpenseModel> dateWiseExpenses, bool isDark) {
     return Row(
       children: [
         Expanded(
@@ -172,7 +178,8 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (_, constraints) {
               print(
                   "internal width : ${constraints.maxWidth}, internal height : ${constraints.maxHeight}");
-              return mainLay(dateWiseExpenses, isDark, isLandscape: constraints.maxWidth>500 ? true : false);
+              return mainLay(dateWiseExpenses, isDark,
+                  isLandscape: constraints.maxWidth > 500 ? true : false);
             },
           ),
         ),
@@ -180,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget balanceHeader(){
+  Widget balanceHeader() {
     return Container(
       child: Center(
         child: Column(
@@ -228,8 +235,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           var eachTrans = eachItem.allTransactions[childIndex];
 
                           return GridTile(
-                            child: Image.asset(AppConstants
-                                .mCategories[eachTrans.expCatType].catImgPath, width: 40, height: 40),
+                            child: Image.asset(
+                                AppConstants.mCategories[eachTrans.expCatType]
+                                    .catImgPath,
+                                width: 40,
+                                height: 40),
                             header: Text(eachTrans.expTitle),
                             footer: Text(eachTrans.expAmt.toString()),
                           );
@@ -248,6 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             trailing: Column(
                               children: [
                                 Text(eachTrans.expAmt.toString()),
+
                                 ///balance will be added here
                                 Text(eachTrans.expBal.toString()),
                               ],
@@ -324,4 +335,52 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return dateWiseExpenses;
   }
+
+  /*List<MonthWiseExpenseModel> filterMonthWiseExpenses(
+      List<ExpenseModel> allExpenses) {
+    List<MonthWiseExpenseModel> monthWiseExpenses = [];
+
+    var listUniqueMonths = [];
+
+    for (ExpenseModel eachExp in allExpenses) {
+      var mMonth = DateTimeUtils.getFormattedMonthFromMilli(
+          int.parse(eachExp.expTimeStamp));
+
+      if (!listUniqueMonths.contains(mMonth)) {
+        ///not contains
+        listUniqueMonths.add(mMonth);
+      }
+    }
+
+    print(listUniqueMonths);
+
+    for (String month in listUniqueMonths) {
+      List<ExpenseModel> thisMonthExpenses = [];
+      num thisMonthBal = 0.0;
+
+      for (ExpenseModel eachExp in allExpenses) {
+        var mMonth = DateTimeUtils.getFormattedMonthFromMilli(
+            int.parse(eachExp.expTimeStamp));
+
+        if (month == mMonth) {
+          thisMonthExpenses.add(eachExp);
+
+          if (eachExp.expType == 0) {
+            ///debit
+            thisMonthBal -= eachExp.expAmt;
+          } else {
+            ///credit
+            thisMonthBal += eachExp.expAmt;
+          }
+        }
+      }
+
+      monthWiseExpenses.add(MonthWiseExpenseModel(
+          month: month,
+          totalAmt: thisMonthBal.toString(),
+          allTransactions: thisMonthExpenses));
+    }
+
+    return monthWiseExpenses;
+  }*/
 }

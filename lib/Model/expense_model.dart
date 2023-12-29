@@ -11,6 +11,17 @@ class DateWiseExpenseModel {
       required this.allTransactions});
 }
 
+class MonthWiseExpenseModel {
+  String month;
+  String totalAmt;
+  List<ExpenseModel> allTransactions;
+
+  MonthWiseExpenseModel({
+    required this.month,
+    required this.totalAmt,
+    required this.allTransactions});
+}
+
 class ExpenseModel {
   ExpenseModel({
     required this.expId,
