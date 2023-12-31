@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wscube_expense_app/Screens/add_expense_screen.dart';
 import 'package:wscube_expense_app/Screens/login_screen.dart';
+import 'package:wscube_expense_app/Screens/stats_page.dart';
 import 'package:wscube_expense_app/date_utils.dart';
 import 'package:wscube_expense_app/exp_bloc/expense_bloc.dart';
 import 'package:wscube_expense_app/provider/theme_provider.dart';
@@ -24,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
   double mHeight = 0.0;
   MediaQueryData? mq;
   num lastBalance = 0.0;
+
+  List<ExpenseModel> allExpenses = [];
 
   @override
   void initState() {
@@ -93,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           if (state is ExpenseLoadedState) {
+            allExpenses = state.mData;
             if (state.mData.isNotEmpty) {
               updateBalance(state.mData);
               var dateWiseExpenses = filterDayWiseExpenses(state.mData);
@@ -113,20 +117,40 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container();
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-        backgroundColor: isDark ? Colors.white : Colors.black,
-        child: Icon(
-          Icons.add,
-          color: isDark ? Colors.black : Colors.white,
-        ),
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddExpenseScreen(balance: lastBalance),
-              ));
-        },
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          FloatingActionButton(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+            backgroundColor: isDark ? Colors.white : Colors.black,
+            child: Icon(
+              Icons.stacked_bar_chart,
+              color: isDark ? Colors.black : Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StatsPage(mData: allExpenses),
+                  ));
+            },
+          ),
+          FloatingActionButton(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+            backgroundColor: isDark ? Colors.white : Colors.black,
+            child: Icon(
+              Icons.add,
+              color: isDark ? Colors.black : Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddExpenseScreen(balance: lastBalance),
+                  ));
+            },
+          ),
+        ],
       ),
     );
   }

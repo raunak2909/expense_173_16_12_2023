@@ -22,6 +22,17 @@ class MonthWiseExpenseModel {
     required this.allTransactions});
 }
 
+class CatWiseExpenseModel{
+  String catName;
+  String totalAmt;
+  List<ExpenseModel> allTransactions;
+
+  CatWiseExpenseModel({
+    required this.catName,
+    required this.totalAmt,
+    required this.allTransactions});
+}
+
 class ExpenseModel {
   ExpenseModel({
     required this.expId,

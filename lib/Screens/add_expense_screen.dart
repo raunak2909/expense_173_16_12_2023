@@ -148,6 +148,8 @@ class _AddExpenseState extends State<AddExpenseScreen> {
                                     onTap: () {
                                       setState(() {
                                         selectedCatIndex = index;
+                                        //eachCat.catId;
+                                        //select id instead
                                       });
                                       Navigator.pop(context);
                                     },
